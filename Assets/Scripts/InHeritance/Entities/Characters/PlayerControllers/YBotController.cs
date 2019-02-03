@@ -8,13 +8,16 @@ namespace Otumn.Playground
     {
         [Header("Components")]
         [SerializeField] private Animator anim;
+        [SerializeField] private Transform followingCamera;
         [Header("Movement")]
         [SerializeField] private float groundMaxSpeed = 50f;
         [SerializeField] private AnimationCurve groundAccelerationCurve;
 
+        private bool wasMoving = false;
         private float axesRatioedMagnitude;
         private float axesToAccelerationCurveValue;
         private Vector3 movementDirection;
+        private Quaternion camRotationOnMovementStart;
         private Dictionary<CharacterState, System.Action> movementFunctions;
         private Dictionary<CharacterState, System.Action> animationsFunctions;
 
@@ -31,6 +34,12 @@ namespace Otumn.Playground
                 {CharacterState.Grounded, AnimationsGrounded },
                 {CharacterState.InAir, AnimationsInAir }
             };
+        }
+
+        protected override void Start()
+        {
+            base.Start();
+            camRotationOnMovementStart = followingCamera.localRotation;
         }
 
         protected override void Update()
@@ -70,12 +79,31 @@ namespace Otumn.Playground
         private void MovementGrounded()
         {
             Vector2 inputVector = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+            Vector2 rawInputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
             axesRatioedMagnitude = inputVector.magnitude;
             axesToAccelerationCurveValue = groundAccelerationCurve.Evaluate(axesRatioedMagnitude);
             //Debug.Log(" Magnitude : " + inputVector.magnitude + " Ratioed : " + axesRatioedMagnitude + " Acceleration : " + axesToAccelerationCurveValue);
-            movementDirection = new Vector3(Input.GetAxisRaw("Horizontal") * axesToAccelerationCurveValue, 0, Input.GetAxisRaw("Vertical") * axesToAccelerationCurveValue) * groundMaxSpeed * Time.deltaTime;
+            movementDirection = new Vector3(rawInputVector.x * axesToAccelerationCurveValue, 0, rawInputVector.y * axesToAccelerationCurveValue) * groundMaxSpeed * Time.deltaTime;
+            Debug.DrawRay(transform.position, movementDirection, Color.magenta);
+            if(IsMovingCheck())
+            {
+                movementDirection = followingCamera.localRotation * movementDirection;
+                transform.rotation = Quaternion.LookRotation(movementDirection, transform.up);
+                if(!wasMoving)
+                {
+                    wasMoving = true;
+                    camRotationOnMovementStart = followingCamera.localRotation;
+                }
+            }
+            else
+            {
+                if(wasMoving)
+                {
+                    wasMoving = false;
+                }
+            }
+            Debug.DrawRay(transform.position, movementDirection, Color.cyan);
             body.velocity = movementDirection;
-            if(IsMovingCheck()) transform.rotation = Quaternion.LookRotation(movementDirection, transform.up);
         }
 
         private void MovementInAir()

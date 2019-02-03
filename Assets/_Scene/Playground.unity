@@ -897,5 +897,10 @@ PrefabInstance:
       propertyPath: m_ScreenX
       value: 0.42199993
       objectReference: {fileID: 0}
+    - target: {fileID: 7167147044465953306, guid: 77ee021ee3ee0b04a8a07b3df9259d7b,
+        type: 3}
+      propertyPath: followingCamera
+      value: 
+      objectReference: {fileID: 1526450944}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 77ee021ee3ee0b04a8a07b3df9259d7b, type: 3}

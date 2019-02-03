@@ -19,7 +19,6 @@ namespace Otumn.Playground
             Vector2 inputVector = new Vector2(Input.GetAxis("SecondHorizontal"), Input.GetAxis("SecondVertical"));
             float horiSpeed = Input.GetAxis("SecondVertical") * rotationSpeed * Time.deltaTime;
             float vertiSpeed = Input.GetAxis("SecondHorizontal") * rotationSpeed * Time.deltaTime;
-            Debug.Log("Hori : " + horiSpeed + " Verti : " + vertiSpeed);
             transform.rotation *= Quaternion.AngleAxis(horiSpeed, Vector3.up);
             //transform.rotation *= Quaternion.AngleAxis(vertiSpeed, Vector3.right);
         }
