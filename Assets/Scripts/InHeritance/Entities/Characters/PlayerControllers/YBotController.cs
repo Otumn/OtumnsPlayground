@@ -82,12 +82,12 @@ namespace Otumn.Playground
             Vector2 rawInputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
             axesRatioedMagnitude = inputVector.magnitude;
             axesToAccelerationCurveValue = groundAccelerationCurve.Evaluate(axesRatioedMagnitude);
-            //Debug.Log(" Magnitude : " + inputVector.magnitude + " Ratioed : " + axesRatioedMagnitude + " Acceleration : " + axesToAccelerationCurveValue);
             movementDirection = new Vector3(rawInputVector.x * axesToAccelerationCurveValue, 0, rawInputVector.y * axesToAccelerationCurveValue) * groundMaxSpeed * Time.deltaTime;
             Debug.DrawRay(transform.position, movementDirection, Color.magenta);
             if(IsMovingCheck())
             {
                 movementDirection = followingCamera.localRotation * movementDirection;
+                movementDirection = new Vector3(movementDirection.x, 0, movementDirection.z);
                 transform.rotation = Quaternion.LookRotation(movementDirection, transform.up);
                 if(!wasMoving)
                 {

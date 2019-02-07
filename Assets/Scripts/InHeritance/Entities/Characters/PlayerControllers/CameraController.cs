@@ -8,6 +8,7 @@ namespace Otumn.Playground
     {
         [SerializeField] private float rotationSpeed = 100f;
 
+
         protected override void Update()
         {
             base.Update();
@@ -20,7 +21,9 @@ namespace Otumn.Playground
             float horiSpeed = Input.GetAxis("SecondVertical") * rotationSpeed * Time.deltaTime;
             float vertiSpeed = Input.GetAxis("SecondHorizontal") * rotationSpeed * Time.deltaTime;
             transform.rotation *= Quaternion.AngleAxis(horiSpeed, Vector3.up);
-            //transform.rotation *= Quaternion.AngleAxis(vertiSpeed, Vector3.right);
+            transform.rotation *= Quaternion.AngleAxis(vertiSpeed, Vector3.right);
+            Quaternion rot = transform.rotation;
+            transform.rotation = Quaternion.Euler(rot.eulerAngles.x, rot.eulerAngles.y, 0);
         }
     }
 }
