@@ -103,7 +103,7 @@ namespace Otumn.Playground
                 }
             }
             Debug.DrawRay(transform.position, movementDirection, Color.cyan);
-            body.velocity = movementDirection;
+            //body.velocity = movementDirection;
         }
 
         private void MovementInAir()

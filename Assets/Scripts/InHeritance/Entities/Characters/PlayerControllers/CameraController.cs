@@ -7,6 +7,12 @@ namespace Otumn.Playground
     public class CameraController : Entity
     {
         [SerializeField] private float rotationSpeed = 100f;
+    }
+
+    // Cinemachine version
+    /*public class CameraController : Entity
+    {
+        [SerializeField] private float rotationSpeed = 100f;
 
 
         protected override void Update()
@@ -25,5 +31,5 @@ namespace Otumn.Playground
             Quaternion rot = transform.rotation;
             transform.rotation = Quaternion.Euler(rot.eulerAngles.x, rot.eulerAngles.y, 0);
         }
-    }
+    }*/
 }
