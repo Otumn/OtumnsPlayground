@@ -4,20 +4,14 @@ using UnityEngine;
 
 namespace Otumn.Playground
 {
-    public class YBotController : PlayerController
+    public class CBotController : PlayerController
     {
         [Header("Components")]
         [SerializeField] private Animator anim;
-        [SerializeField] private Transform rotationRef;
+        [SerializeField] private Transform followingCamera;
         [Header("Movement")]
         [SerializeField] private float groundMaxSpeed = 50f;
-        [SerializeField] private AnimationCurve groundAccelerationCurve;
 
-        private bool wasMoving = false;
-        private float axesRatioedMagnitude;
-        private float axesToAccelerationCurveValue;
-        private Vector3 movementDirection;
-        private Quaternion camRotationOnMovementStart;
         private Dictionary<CharacterState, System.Action> movementFunctions;
         private Dictionary<CharacterState, System.Action> animationsFunctions;
 
@@ -39,7 +33,6 @@ namespace Otumn.Playground
         protected override void Start()
         {
             base.Start();
-            camRotationOnMovementStart = rotationRef.localRotation;
         }
 
         protected override void Update()
@@ -52,7 +45,7 @@ namespace Otumn.Playground
 
         private void CharacterStateManager()
         {
-            if(IsGroundedCheck())
+            if (IsGroundedCheck())
             {
                 movementState = CharacterState.Grounded;
             }
@@ -78,32 +71,7 @@ namespace Otumn.Playground
 
         private void MovementGrounded()
         {
-            Vector2 inputVector = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-            Vector2 rawInputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
-            axesRatioedMagnitude = inputVector.magnitude;
-            axesToAccelerationCurveValue = groundAccelerationCurve.Evaluate(axesRatioedMagnitude);
-            movementDirection = new Vector3(rawInputVector.x * axesToAccelerationCurveValue, 0, rawInputVector.y * axesToAccelerationCurveValue) * groundMaxSpeed * Time.deltaTime;
-            Debug.DrawRay(transform.position, movementDirection, Color.magenta);
-            if(IsMovingCheck())
-            {
-                movementDirection = rotationRef.localRotation * movementDirection;
-                movementDirection = new Vector3(movementDirection.x, 0, movementDirection.z);
-                transform.rotation = Quaternion.LookRotation(movementDirection, transform.up);
-                if(!wasMoving)
-                {
-                    wasMoving = true;
-                    camRotationOnMovementStart = rotationRef.localRotation;
-                }
-            }
-            else
-            {
-                if(wasMoving)
-                {
-                    wasMoving = false;
-                }
-            }
-            Debug.DrawRay(transform.position, movementDirection, Color.cyan);
-            body.velocity = movementDirection;
+           
         }
 
         private void MovementInAir()
@@ -117,7 +85,7 @@ namespace Otumn.Playground
 
         private void AnimationsGrounded()
         {
-            anim.SetFloat("acceleration", axesRatioedMagnitude);
+            
         }
 
         private void AnimationsInAir()
