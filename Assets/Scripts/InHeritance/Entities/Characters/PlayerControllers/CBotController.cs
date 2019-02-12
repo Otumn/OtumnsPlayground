@@ -8,10 +8,18 @@ namespace Otumn.Playground
     {
         [Header("Components")]
         [SerializeField] private Animator anim;
-        [SerializeField] private Transform followingCamera;
         [Header("Movement")]
-        [SerializeField] private float groundMaxSpeed = 50f;
+        [SerializeField] private float groundMaxSpeed = 200f;
+        [SerializeField] private float crounchedMaxSpeed = 100f;
+        [Header("Camera")]
+        [SerializeField] private float cameraSpeed = 100f;
+        [SerializeField] private Transform head;
+        [SerializeField] private float upMaxAngle = 300f;
+        [SerializeField] private float downMaxAngle = 50f;
 
+        private bool wasMoving = false;
+        private Vector3 movementDirection;
+        private Quaternion camRotationOnMovementStart;
         private Dictionary<CharacterState, System.Action> movementFunctions;
         private Dictionary<CharacterState, System.Action> animationsFunctions;
 
@@ -71,7 +79,55 @@ namespace Otumn.Playground
 
         private void MovementGrounded()
         {
-           
+            CameraControl();
+            Vector2 inputVector = new Vector2(Input.GetAxis("KeyHorizontal"), Input.GetAxis("KeyVertical"));
+            Vector2 rawInputVector = new Vector2(Input.GetAxisRaw("KeyHorizontal"), Input.GetAxisRaw("KeyVertical"));
+            movementDirection = new Vector3(rawInputVector.x, 0, rawInputVector.y) * groundMaxSpeed * Time.deltaTime;
+            Debug.DrawRay(transform.position, movementDirection, Color.magenta);
+            if (IsMovingCheck())
+            {
+                movementDirection = transform.localRotation * movementDirection;
+                movementDirection = new Vector3(movementDirection.x, 0, movementDirection.z);
+                if (!wasMoving)
+                {
+                    wasMoving = true;
+                }
+            }
+            else
+            {
+                if (wasMoving)
+                {
+                    wasMoving = false;
+                }
+            }
+            Debug.DrawRay(transform.position, movementDirection, Color.cyan);
+            body.velocity = movementDirection;
+        }
+
+        private void CameraControl()
+        {
+            Vector2 inputVector = new Vector2(Input.GetAxis("MouseHorizontal"), Input.GetAxis("MouseVertical"));
+            float horiSpeed = inputVector.x * cameraSpeed * Time.deltaTime;
+            float vertiSpeed = inputVector.y * cameraSpeed * Time.deltaTime;
+            transform.rotation *= Quaternion.AngleAxis(horiSpeed, Vector3.up);
+            head.rotation *= Quaternion.AngleAxis(vertiSpeed, Vector3.right);
+            Quaternion rot = head.localRotation;
+            float xAngle = rot.eulerAngles.x;
+            if (xAngle < 360 && xAngle >= upMaxAngle - 10)
+            {
+                if (xAngle < upMaxAngle)
+                {
+                    xAngle = upMaxAngle;
+                }
+            }
+            else if (xAngle >= 0 && xAngle <= downMaxAngle + 10)
+            {
+                if (xAngle > downMaxAngle)
+                {
+                    xAngle = downMaxAngle;
+                }
+            }
+            head.localRotation = Quaternion.Euler(xAngle, 0, 0);
         }
 
         private void MovementInAir()
@@ -104,7 +160,7 @@ namespace Otumn.Playground
 
         private bool IsMovingCheck()
         {
-            if (Input.GetAxisRaw("Horizontal") != 0 || Input.GetAxisRaw("Vertical") != 0)
+            if (Input.GetAxisRaw("KeyHorizontal") != 0 || Input.GetAxisRaw("KeyVertical") != 0)
             {
                 return true;
             }
