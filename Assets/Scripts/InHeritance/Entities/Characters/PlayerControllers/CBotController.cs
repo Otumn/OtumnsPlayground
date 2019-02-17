@@ -8,15 +8,18 @@ namespace Otumn.Playground
     {
         [Header("Components")]
         [SerializeField] private Animator anim;
+        [SerializeField] private GameObject attackCollider;
         [Header("Movement")]
         [SerializeField] private float groundMaxSpeed = 200f;
-        [SerializeField] private float crounchedMaxSpeed = 100f;
+        [SerializeField] private float crouchedMaxSpeed = 100f;
         [Header("Camera")]
         [SerializeField] private float cameraSpeed = 100f;
         [SerializeField] private Transform head;
         [SerializeField] private float upMaxAngle = 300f;
         [SerializeField] private float downMaxAngle = 50f;
 
+        private bool attacking = false;
+        private bool crouched = false;
         private bool wasMoving = false;
         private Vector3 movementDirection;
         private Quaternion camRotationOnMovementStart;
@@ -41,6 +44,7 @@ namespace Otumn.Playground
         protected override void Start()
         {
             base.Start();
+            Cursor.visible = false;
         }
 
         protected override void Update()
@@ -80,9 +84,15 @@ namespace Otumn.Playground
         private void MovementGrounded()
         {
             CameraControl();
+            if(Input.GetKeyDown(KeyCode.C))
+            {
+                crouched = !crouched;
+                anim.SetBool("crouched", crouched);
+            }
             Vector2 inputVector = new Vector2(Input.GetAxis("KeyHorizontal"), Input.GetAxis("KeyVertical"));
             Vector2 rawInputVector = new Vector2(Input.GetAxisRaw("KeyHorizontal"), Input.GetAxisRaw("KeyVertical"));
-            movementDirection = new Vector3(rawInputVector.x, 0, rawInputVector.y) * groundMaxSpeed * Time.deltaTime;
+            if(!crouched) movementDirection = new Vector3(rawInputVector.x, 0, rawInputVector.y) * groundMaxSpeed * Time.deltaTime;
+            else movementDirection = new Vector3(rawInputVector.x, 0, rawInputVector.y) * crouchedMaxSpeed * Time.deltaTime;
             Debug.DrawRay(transform.position, movementDirection, Color.magenta);
             if (IsMovingCheck())
             {
@@ -102,6 +112,7 @@ namespace Otumn.Playground
             }
             Debug.DrawRay(transform.position, movementDirection, Color.cyan);
             body.velocity = movementDirection;
+            AttackControl();
         }
 
         private void CameraControl()
@@ -113,7 +124,7 @@ namespace Otumn.Playground
             head.rotation *= Quaternion.AngleAxis(vertiSpeed, Vector3.right);
             Quaternion rot = head.localRotation;
             float xAngle = rot.eulerAngles.x;
-            if (xAngle < 360 && xAngle >= upMaxAngle - 10)
+            /*if (xAngle < 360 && xAngle >= upMaxAngle - 10)
             {
                 if (xAngle < upMaxAngle)
                 {
@@ -126,8 +137,17 @@ namespace Otumn.Playground
                 {
                     xAngle = downMaxAngle;
                 }
-            }
+            }*/
             head.localRotation = Quaternion.Euler(xAngle, 0, 0);
+        }
+
+        private void AttackControl()
+        {
+            if(Input.GetMouseButtonDown(0))
+            {
+                attacking = true;
+                anim.SetBool("attacking", attacking);
+            }
         }
 
         private void MovementInAir()
@@ -168,6 +188,26 @@ namespace Otumn.Playground
             {
                 return false;
             }
+        }
+
+        #endregion
+
+        #region Animation Events
+
+        public void EndAttackState()
+        {
+            attacking = false;
+            anim.SetBool("attacking", attacking);
+        }
+
+        public void EnableAttackHitbox()
+        {
+            attackCollider.SetActive(true);
+        }
+
+        public void DisableAttackHitbox()
+        {
+            attackCollider.SetActive(false);
         }
 
         #endregion
