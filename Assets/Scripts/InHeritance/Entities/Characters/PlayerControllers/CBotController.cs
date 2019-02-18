@@ -18,6 +18,8 @@ namespace Otumn.Playground
         [SerializeField] private float upMaxAngle = 300f;
         [SerializeField] private float downMaxAngle = 50f;
 
+        private bool chargingTp = false;
+        private bool castingTp = false;
         private bool attacking = false;
         private bool crouched = false;
         private bool wasMoving = false;
@@ -112,7 +114,7 @@ namespace Otumn.Playground
             }
             Debug.DrawRay(transform.position, movementDirection, Color.cyan);
             body.velocity = movementDirection;
-            AttackControl();
+            ActionsControl();
         }
 
         private void CameraControl()
@@ -141,12 +143,26 @@ namespace Otumn.Playground
             head.localRotation = Quaternion.Euler(xAngle, 0, 0);
         }
 
-        private void AttackControl()
+        private void ActionsControl()
         {
             if(Input.GetMouseButtonDown(0))
             {
                 attacking = true;
                 anim.SetBool("attacking", attacking);
+            }
+
+            if(Input.GetMouseButtonDown(1))
+            {
+                if (!chargingTp) chargingTp = true;
+                anim.SetBool("chargingTp", chargingTp);
+            }
+
+            if(Input.GetMouseButtonUp(1) && chargingTp)
+            {
+                chargingTp = false;
+                castingTp = true;
+                anim.SetBool("chargingTp", chargingTp);
+                anim.SetBool("castingTp", castingTp);
             }
         }
 
@@ -198,6 +214,12 @@ namespace Otumn.Playground
         {
             attacking = false;
             anim.SetBool("attacking", attacking);
+        }
+
+        public void EndCastingTpState()
+        {
+            castingTp = false;
+            anim.SetBool("castingTp", castingTp);
         }
 
         public void EnableAttackHitbox()
