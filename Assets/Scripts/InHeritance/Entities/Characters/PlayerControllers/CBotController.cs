@@ -9,15 +9,25 @@ namespace Otumn.Playground
         [Header("Components")]
         [SerializeField] private Animator anim;
         [SerializeField] private GameObject attackCollider;
+        [SerializeField] private CBotTpTarget tpTarget;
         [Header("Movement")]
         [SerializeField] private float groundMaxSpeed = 200f;
         [SerializeField] private float crouchedMaxSpeed = 100f;
+        [SerializeField] private AnimationCurve ascendingCurve;
+        [SerializeField] private AnimationCurve descendingCurve;
+        [SerializeField] private float jumpForce = 100f;
+        [SerializeField] private float descendingForce = 100f;
+        [SerializeField] private float heightCurvesSpeed = 0.01f;
         [Header("Camera")]
         [SerializeField] private float cameraSpeed = 100f;
         [SerializeField] private Transform head;
         [SerializeField] private float upMaxAngle = 300f;
         [SerializeField] private float downMaxAngle = 50f;
 
+        private float movementY = 0f;
+        private float heigthInc = 0;
+        private bool isJumping = false;
+        private bool isDescending = false;
         private bool chargingTp = false;
         private bool castingTp = false;
         private bool attacking = false;
@@ -72,13 +82,13 @@ namespace Otumn.Playground
         protected override void Movement()
         {
             base.Movement();
-            movementFunctions[MovementState].Invoke();
+            movementFunctions[movementState].Invoke();
         }
 
         protected override void Animations()
         {
             base.Animations();
-            animationsFunctions[MovementState].Invoke();
+            animationsFunctions[movementState].Invoke();
         }
 
         #region Movement Functions
@@ -99,7 +109,7 @@ namespace Otumn.Playground
             if (IsMovingCheck())
             {
                 movementDirection = transform.localRotation * movementDirection;
-                movementDirection = new Vector3(movementDirection.x, 0, movementDirection.z);
+                movementDirection = new Vector3(movementDirection.x, movementY, movementDirection.z);
                 if (!wasMoving)
                 {
                     wasMoving = true;
@@ -112,9 +122,20 @@ namespace Otumn.Playground
                     wasMoving = false;
                 }
             }
+            if(IsGroundedCheck() && Input.GetKeyDown(KeyCode.Space))
+            {
+                isJumping = true;
+                
+            }
             Debug.DrawRay(transform.position, movementDirection, Color.cyan);
             body.velocity = movementDirection;
             ActionsControl();
+            HeightManager();
+        }
+
+        private void MovementInAir()
+        {
+            HeightManager();
         }
 
         private void CameraControl()
@@ -157,6 +178,11 @@ namespace Otumn.Playground
                 anim.SetBool("chargingTp", chargingTp);
             }
 
+            if(chargingTp)
+            {
+                tpTarget.ShowTargetAt(head.forward * 3, head);
+            }
+
             if(Input.GetMouseButtonUp(1) && chargingTp)
             {
                 chargingTp = false;
@@ -166,9 +192,38 @@ namespace Otumn.Playground
             }
         }
 
-        private void MovementInAir()
+        private void HeightManager()
         {
-
+            if(movementState == CharacterState.Grounded)
+            {
+                //movementY = 0;
+            }
+            else if(movementState == CharacterState.InAir)
+            {
+              
+            }
+            if (isJumping)
+            {
+                movementY = ascendingCurve.Evaluate(heigthInc) * jumpForce;
+                heigthInc += Time.deltaTime * heightCurvesSpeed;
+                if (heigthInc > 1f)
+                {
+                    heigthInc = 0;
+                    isJumping = false;
+                    isDescending = true;
+                }
+            }
+            if(isDescending)
+            {
+                movementY = descendingCurve.Evaluate(heigthInc) * descendingForce;
+                heigthInc += Time.deltaTime * heightCurvesSpeed;
+                if (heigthInc > 1f)
+                {
+                    heigthInc = 0;
+                    isDescending = false;
+                }
+            }
+            body.velocity = new Vector3(body.velocity.x, movementY, body.velocity.z);
         }
 
         #endregion

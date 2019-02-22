@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MAT_TpTargetNormal
+  m_Name: MAT_Box
   m_Shader: {fileID: 4800000, guid: 29bc8c2754d2d54468706da39ce171ea, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -219,13 +219,13 @@ Material:
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FirstColor: {r: 0.4386792, g: 0.6727745, b: 1, a: 1}
+    - _FirstColor: {r: 0.8301887, g: 0.8301887, b: 0.8301887, a: 1}
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
-    - _SecondColor: {r: 0.8113207, g: 0.8113207, b: 0.8113207, a: 1}
+    - _SecondColor: {r: 0.7830189, g: 0.5740209, b: 0.2991723, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _ThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
-    - _Tiling: {r: 7, g: 0.5, b: 0, a: 0}
+    - _Tiling: {r: 1, g: 1, b: 1, a: 0}
     - _TransmittanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _UVDetailsMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}
